@@ -13,18 +13,20 @@ class StringProcess(object):
         self.num = re.compile(r"[+-]?\d+\.?\d*", flags=0)
         # self.url = re.compile(r"[a-z]*[:.]+\S+|\n|\s+", flags=0)
         self.url = re.compile(
-                r"(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]", flags=0)
+            r"(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]",
+            flags=0,
+        )
         self.stop_words = None
         self.nlp = None
 
     def clean_str(self, string):
         string = re.sub(self.other_char, " ", string)
-        string = re.sub(r"\'s", " \'s", string)
-        string = re.sub(r"\'ve", " \'ve", string)
-        string = re.sub(r"n\'t", " n\'t", string)
-        string = re.sub(r"\'re", " \'re", string)
-        string = re.sub(r"\'d", " \'d", string)
-        string = re.sub(r"\'ll", " \'ll", string)
+        string = re.sub(r"\'s", " 's", string)
+        string = re.sub(r"\'ve", " 've", string)
+        string = re.sub(r"n\'t", " n't", string)
+        string = re.sub(r"\'re", " 're", string)
+        string = re.sub(r"\'d", " 'd", string)
+        string = re.sub(r"\'ll", " 'll", string)
         string = re.sub(r",", " , ", string)
         string = re.sub(r"!", " ! ", string)
         string = re.sub(r"\(", " \( ", string)
@@ -39,6 +41,7 @@ class StringProcess(object):
 
         if self.nlp is None:
             from spacy.lang.en import English
+
             self.nlp = English()
 
         new_doc = list()
@@ -57,9 +60,9 @@ class StringProcess(object):
 
     def lean_str_sst(self, string):
         """
-            Tokenization/string cleaning for the SST yelp_dataset
-            Original taken from https://github.com/yoonkim/CNN_sentence/blob/master/process_data.py
-            """
+        Tokenization/string cleaning for the SST yelp_dataset
+        Original taken from https://github.com/yoonkim/CNN_sentence/blob/master/process_data.py
+        """
         string = re.sub(self.other_char, " ", string)
         string = re.sub(r"\s{2,}", " ", string)
         return string.strip().lower()
@@ -67,7 +70,8 @@ class StringProcess(object):
     def remove_stopword(self, string):
         if self.stop_words is None:
             from nltk.corpus import stopwords
-            self.stop_words = set(stopwords.words('english'))
+
+            self.stop_words = set(stopwords.words("english"))
 
         if type(string) is str:
             string = string.split()
@@ -81,12 +85,12 @@ class StringProcess(object):
         return " ".join(new_string)
 
     def replace_num(self, string):
-        result = re.sub(self.num, '<num>', string)
+        result = re.sub(self.num, "<num>", string)
         return result
 
     def replace_urls(self, string):
-        result = re.sub(self.url, '<url>', string)
-        result = ' '.join(re.split(' +|\n+', result)).strip()
+        result = re.sub(self.url, "<url>", string)
+        result = " ".join(re.split(" +|\n+", result)).strip()
         return result
 
 
@@ -114,7 +118,7 @@ class CorpusProcess:
         word_lst = list()
         with open(self.corpus_name, mode="rb", encoding=self.encoding) as fin:
             for indx, item in tqdm(enumerate(fin), desc="clean the text"):
-                data = item.strip().decode('latin1')
+                data = item.strip().decode("latin1")
                 data = sp.clean_str(data)
                 if self.dataset not in {"mr"}:
                     data = sp.remove_stopword(data)
@@ -130,10 +134,10 @@ class CorpusProcess:
             word_st = set(word_lst)
 
         doc_len_lst = list()
-        with open(self.save_name, mode='w') as fout:
+        with open(self.save_name, mode="w") as fout:
             with open(self.corpus_name, mode="rb", encoding=self.encoding) as fin:
                 for line in tqdm(fin):
-                    lines_str = line.strip().decode('latin1')
+                    lines_str = line.strip().decode("latin1")
                     lines_str = sp.clean_str(lines_str)
                     if self.dataset not in {"mr"}:
                         lines_str = sp.remove_stopword(lines_str)
@@ -151,11 +155,11 @@ class CorpusProcess:
 
 def main():
     if len(sys.argv) != 2:
-	    sys.exit("Use: python data_processor.py <dataset>")
+        sys.exit("Use: python data_processor.py <dataset>")
     dataset = sys.argv[1]
     CorpusProcess(dataset)
     # pass
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
